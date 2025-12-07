@@ -9,6 +9,9 @@
 234234234234278
 818181911112111")
 
+(def real-input
+  (slurp (io/resource "day03.txt")))
+
 (defn parse-input
   [input]
   (->> (string/split-lines input)
