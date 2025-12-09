@@ -25,12 +25,13 @@
 (defn parse-input
   [input]
   (let [[ranges _ ids] (->> (string/split-lines input)
-                          (partition-by empty?))]
+                            (partition-by empty?))]
     {:ranges (map #(mapv parse-long (string/split % #"-")) ranges)
-                  
+
      :ids (map parse-long ids)}))
 
 (defn merge-overlapping-ranges
+  "Sorts the ranages and merges overlapping ranges."
   [ranges]
   (let [[r & rs] (sort-by first ranges)]
     (reduce (fn [rs [mn mx :as curr-range]]
@@ -48,6 +49,8 @@
       (update :ranges merge-overlapping-ranges)))
 
 (defn find-range
+  "Given a vector of ranges that are non overlapping and sorted by the min id
+  and and id find the range the id is in if it exists via binary search."
   [ranges id]
   (cond (empty? ranges) nil
         (= 1 (count ranges))
@@ -72,6 +75,7 @@
 (defn solve-part2
   [input]
   (let [{:keys [ranges]} (process-input input)]
+    ; since the ranges are non overlapping just sum their sizes
     (transduce (map (fn [[mn mx]] (inc (- mx mn))))
                +
                ranges)))
