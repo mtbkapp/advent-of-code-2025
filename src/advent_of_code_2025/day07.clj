@@ -33,7 +33,6 @@
               (remove (comp nil? second)))
         line))
 
-#_(clojure.pprint/pprint (parse-input test-input))
 (defn parse-input
   [input]
   (let [lines (string/split-lines input)]
@@ -82,11 +81,35 @@
     state
     (recur (iter-beams state) (dec n))))
 
-
 #_(prn (solve-part1 test-input))
 #_(prn (solve-part1 real-input))
 (defn solve-part1
   [input]
   (let [{:keys [height] :as init-state} (parse-input input)]
     (:split-count (run-beams init-state height))))
+
+(defn iter-beams2
+  [beam-counts splitters]
+  (reduce (fn [new-beam-counts [pos c]]
+            (let [next-pos (vec+ pos [0 1])
+                  next-positions (if (contains? splitters next-pos)
+                                   [(vec+ next-pos [-1 0])
+                                    (vec+ next-pos [1 0])]
+                                   [next-pos])]
+              (reduce #(update %1 %2 (fnil + 0) c) 
+                      new-beam-counts
+                      next-positions)))
+          {}
+          beam-counts))
+
+#_(prn (solve-part2 test-input))
+#_(prn (solve-part2 real-input))
+(defn solve-part2
+  [input]
+  (let [{:keys [beams splitters height]} (parse-input input)
+        beam-counts {(first beams) 1}
+        end-beam-counts (->> (iterate #(iter-beams2 % splitters) beam-counts)
+                             (drop height)
+                             first)]
+    (apply + (vals end-beam-counts))))
 
